@@ -3,7 +3,7 @@ Name: CheeseRamMenu
 Author: Cheese
 Version: 2.1
 Priority: -1
-ClientOnly: True
+Type: ClientOnly
 Dependencies:
     - CheeseUtilMod
     - EccsGuiBuilder
