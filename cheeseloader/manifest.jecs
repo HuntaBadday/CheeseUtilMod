@@ -1,6 +1,6 @@
 ID: cheeseloader
 Name: CheeseLoader
 Author: Cheese
-Version: 1.2
+Version: 1.3
 Priority: 91
-Optional: true
+Type: ServerOnly
