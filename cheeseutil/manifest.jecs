@@ -3,3 +3,6 @@ Name: Cheese Util Mod
 Author: Lexi
 Version: 0.1.0
 Priority: 0
+ClientDependencies:
+    - EccsGuiBuilder
+    - EccsLogicWorldAPI
