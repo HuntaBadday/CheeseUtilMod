@@ -1,20 +1,31 @@
+using System;
 using LogicAPI.Client;
 using System.Collections.Generic;
-using CheeseUtilMod.Client;
 using LICC;
 using System.IO;
+using EccsLogicWorldAPI.Client.Hooks;
+using LogicWorld;
 
-namespace CheeseUtilMod
+namespace CheeseUtilMod.Client
 {
     public class CheeseUtilClient : ClientMod
     {
         public static List<FileLoadable> fileLoadables = new List<FileLoadable>();
         
-        static CheeseUtilClient() {
-        }
-        
         protected override void Initialize()
         {
+            WorldHook.worldLoading += () => {
+                try
+                {
+                    RamMenu.init();
+                }
+                catch(Exception e)
+                {
+                    Logger.Error("Could not initialize CheeseUtilMod Gui");
+                    SceneAndNetworkManager.TriggerErrorScreen(e);
+                }
+            };
+            
             Logger.Info("Cheese Util Mod - Client Loaded");
         }
         

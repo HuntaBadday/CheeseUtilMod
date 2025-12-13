@@ -5,7 +5,6 @@ using LICC;
 using LogicAPI.Data.BuildingRequests;
 using TMPro;
 using LogicUI.MenuParts;
-using CheeseUtilMod.Client;
 using System.IO;
 using EccsGuiBuilder.Client.Layouts.Elements;
 using EccsGuiBuilder.Client.Layouts.Helper;
@@ -13,7 +12,7 @@ using EccsGuiBuilder.Client.Wrappers;
 using EccsGuiBuilder.Client.Wrappers.AutoAssign;
 using LogicWorld.BuildingManagement;
 
-namespace CheeseRamMenu.Client
+namespace CheeseUtilMod.Client
 {
     public class RamMenu : EditComponentMenu, IAssignMyFields
     {
