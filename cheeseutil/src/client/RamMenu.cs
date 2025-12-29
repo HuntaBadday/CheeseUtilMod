@@ -97,6 +97,15 @@ namespace CheeseUtilMod.Client
                 bottomSection.SetActive(true);
                 isComponentResizable = true;
             }
+            else if (FirstComponentBeingEdited.ClientCode is DualPortRamResizableClient)
+            {
+                var num_outputs = FirstComponentBeingEdited.Component.Data.OutputCount / 2;
+                var num_inputs = (FirstComponentBeingEdited.Component.Data.InputCount - 3 - num_outputs) / 2;
+                addressPegSlider.SetValueWithoutNotify(num_inputs);
+                widthPegSlider.SetValueWithoutNotify(num_outputs);
+                bottomSection.SetActive(true);
+                isComponentResizable = true;
+            }
             else
             {
                 var num_inputs = FirstComponentBeingEdited.Component.Data.InputCount;
@@ -137,11 +146,23 @@ namespace CheeseUtilMod.Client
             {
                 return;
             }
-            BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
-                FirstComponentBeingEdited.Address,
-                newBitwidth + 3 + addressPegSlider.ValueAsInt,
-                newBitwidth
-            ));
+
+            if (FirstComponentBeingEdited.ClientCode is DualPortRamResizableClient)
+            {
+                BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
+                    FirstComponentBeingEdited.Address,
+                    newBitwidth + 3 + 2 * addressPegSlider.ValueAsInt,
+                    2 * newBitwidth
+                ));
+            }
+            else
+            {
+                BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
+                    FirstComponentBeingEdited.Address,
+                    newBitwidth + 3 + addressPegSlider.ValueAsInt,
+                    newBitwidth
+                ));
+            }
         }
 
         private void addressCountChanged(int newAddressBitWidth)
@@ -150,11 +171,22 @@ namespace CheeseUtilMod.Client
             {
                 return;
             }
-            BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
-                FirstComponentBeingEdited.Address,
-                newAddressBitWidth + 3 + widthPegSlider.ValueAsInt,
-                widthPegSlider.ValueAsInt
-            ));
+            if (FirstComponentBeingEdited.ClientCode is DualPortRamResizableClient)
+            {
+                BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
+                    FirstComponentBeingEdited.Address,
+                    2 * newAddressBitWidth + 3 + widthPegSlider.ValueAsInt,
+                    2 * widthPegSlider.ValueAsInt
+                ));
+            }
+            else
+            {
+                BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
+                    FirstComponentBeingEdited.Address,
+                    newAddressBitWidth + 3 + widthPegSlider.ValueAsInt,
+                    widthPegSlider.ValueAsInt
+                ));
+            }
         }
 
         private void loadFile()
@@ -191,6 +223,7 @@ namespace CheeseUtilMod.Client
                 "CheeseUtilMod.Ram8aX16b",
                 "CheeseUtilMod.Ram16aX16b",
                 "CheeseUtilMod.RamResizable",
+                "CheeseUtilMod.DualPortRamResizable",
             };
         }
     }

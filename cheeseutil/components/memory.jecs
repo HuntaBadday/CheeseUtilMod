@@ -137,3 +137,11 @@ RamResizable:
     clientCode: CheeseUtilMod.Client.RamResizableClient
     prefabGenerator: CheeseUtilMod.Client.RamResizablePrefabGenerator
     placingRulesGenerator: CheeseUtilMod.Client.RamResizablePlacingRulesGenerator
+
+DualPortRamResizable:
+    column: "Memory"
+    category: "Resizable"
+    logicCode: CheeseUtilMod.Components.DualPortRamResizable
+    clientCode: CheeseUtilMod.Client.DualPortRamResizableClient
+    prefabGenerator: CheeseUtilMod.Client.DualPortRamResizablePrefabGenerator
+    placingRulesGenerator: CheeseUtilMod.Client.DualPortRamResizablePlacingRulesGenerator
