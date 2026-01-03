@@ -100,27 +100,31 @@ namespace CheeseUtilMod.Components
                         data |= memory[address + i2];
                     }
 
-                    for (int i = 0; i < bitWidth; i++)
-                    {
-                        Outputs[i].On = (data & 1) == 1;
-                        data >>= 1;
-                    }
+                for (int i = 0; i < bitWidth; i++) {
+                    Outputs[i].On = (data & 1) == 1;
+                    data >>= 1;
                 }
-                // Second port output
+            }
+            else
+            {
+                for (int i = 0; i < bitWidth; i++) {
+                    Outputs[i].On = false;
+                }
+            }
+            // Second port output, always active
+            {
+                ulong data = 0;
+                for (ulong i = 0; i < bytes; i++)
                 {
-                    ulong data = 0;
-                    for (ulong i = 0; i < bytes; i++)
-                    {
-                        var i2 = bytes - 1 - i;
-                        data <<= 8;
-                        data |= memory[secondPortAddress + i2];
-                    }
+                    var i2 = bytes - 1 - i;
+                    data <<= 8;
+                    data |= memory[secondPortAddress + i2];
+                }
 
-                    for (int i = bitWidth; i < 2 * bitWidth; i++)
-                    {
-                        Outputs[i].On = (data & 1) == 1;
-                        data >>= 1;
-                    }
+                for (int i = bitWidth; i < 2 * bitWidth; i++)
+                {
+                    Outputs[i].On = (data & 1) == 1;
+                    data >>= 1;
                 }
             }
             else
