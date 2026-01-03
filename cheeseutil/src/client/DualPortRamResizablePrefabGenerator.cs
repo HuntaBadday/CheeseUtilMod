@@ -50,7 +50,7 @@ namespace CheeseUtilMod.Client
             {
                 outputs.Add(new ComponentOutput
                 {
-                    Position = new Vector3(baseOutputX, 2f, 1.5f),
+                    Position = new Vector3(baseOutputX, 2.5f, 1.5f),
                     Rotation = new Vector3(90f, 0f, 0f),
                 });
                 baseOutputX += 1;
@@ -61,21 +61,21 @@ namespace CheeseUtilMod.Client
             //Chip select
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(-1f, 3f, 0f),
+                Position = new Vector3(-1f, 4f, 0f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 0.6f,
             });
             //Write
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(0f, 3f, 0f),
+                Position = new Vector3(0f, 4f, 0f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 0.5f
             });
             //Load
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(1f, 3f, 0f),
+                Position = new Vector3(1f, 4f, 0f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 0.4f
             });
@@ -107,7 +107,7 @@ namespace CheeseUtilMod.Client
             {
                 inputs.Add(new ComponentInput
                 {
-                    Position = new Vector3(baseInputX, 1.5f, -0.5f),
+                    Position = new Vector3(baseInputX, 2f, -0.5f),
                     Rotation = new Vector3(-90f, 0f, 0f),
                     Length = length
                 });
@@ -123,7 +123,7 @@ namespace CheeseUtilMod.Client
             {
                 inputs.Add(new ComponentInput
                 {
-                    Position = new Vector3(baseInputX, 2.5f, -0.5f),
+                    Position = new Vector3(baseInputX, 3.5f, -0.5f),
                     Rotation = new Vector3(-90f, 0f, 0f),
                     Length = length
                 });
@@ -131,7 +131,7 @@ namespace CheeseUtilMod.Client
                 length += step_length;
             }
 
-            prefabBlock.Scale = new Vector3(current_width, 3f, 2f);
+            prefabBlock.Scale = new Vector3(current_width, 4f, 2f);
             prefabBlock.Position = new Vector3(0.5f, 0f, 0.5f);
             return new Prefab
             {
