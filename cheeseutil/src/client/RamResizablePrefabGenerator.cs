@@ -15,7 +15,7 @@ namespace CheeseUtilMod.Client
             => (componentData.InputCount, componentData.OutputCount);
 
         public override (int inputCount, int outputCount) GetDefaultPegCounts()
-            => (3 + 1 + 1, 2);
+            => (3 + 1 + 2, 2);
 
         protected override Prefab GeneratePrefabFor((int InputCount, int OutputCount) identifier)
         {
