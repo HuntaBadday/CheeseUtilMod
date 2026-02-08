@@ -49,35 +49,35 @@ namespace CheeseUtilMod.Client
             //Load
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(-0.5f, 5f, 0.5f),
+                Position = new Vector3(1f, 5f, 0.5f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 0.6f
             });
             //Output enable A
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(0f, 5f, 0f),
+                Position = new Vector3(-1f, 5f, 0f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 1f,
             });
             //Write A
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(1f, 5f, 0f),
+                Position = new Vector3(0f, 5f, 0f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 0.8f
             });
             //Output enable B
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(0f, 5f, 1f),
+                Position = new Vector3(-1f, 5f, 1f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 1f,
             });
             //Write B
             inputs.Add(new ComponentInput
             {
-                Position = new Vector3(1f, 5f, 1f),
+                Position = new Vector3(0f, 5f, 1f),
                 Rotation = new Vector3(0f, 0f, 0f),
                 Length = 0.8f
             });
