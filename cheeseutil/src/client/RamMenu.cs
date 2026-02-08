@@ -6,6 +6,7 @@ using LogicAPI.Data.BuildingRequests;
 using TMPro;
 using LogicUI.MenuParts;
 using System.IO;
+using CheeseUtilMod.Shared.CustomData;
 using EccsGuiBuilder.Client.Layouts.Elements;
 using EccsGuiBuilder.Client.Layouts.Helper;
 using EccsGuiBuilder.Client.Wrappers;
@@ -100,7 +101,8 @@ namespace CheeseUtilMod.Client
             else if (FirstComponentBeingEdited.ClientCode is DualPortRamResizableClient)
             {
                 var num_outputs = FirstComponentBeingEdited.Component.Data.OutputCount / 2;
-                var num_inputs = (FirstComponentBeingEdited.Component.Data.InputCount - 3 - num_outputs) / 2;
+                var num_inputs = (FirstComponentBeingEdited.Component.Data.InputCount - Pegs.DualPort.ControlPegs -
+                                  FirstComponentBeingEdited.Component.Data.OutputCount) / 2;
                 addressPegSlider.SetValueWithoutNotify(num_inputs);
                 widthPegSlider.SetValueWithoutNotify(num_outputs);
                 bottomSection.SetActive(true);
@@ -115,6 +117,7 @@ namespace CheeseUtilMod.Client
                 bottomSection.SetActive(false);
                 isComponentResizable = false;
             }
+
             filePathInputField.text = "";
             filePathInputField.ActivateInputField();
         }
@@ -142,7 +145,7 @@ namespace CheeseUtilMod.Client
 
         private void bitwidthChanged(int newBitwidth)
         {
-            if(!isComponentResizable)
+            if (!isComponentResizable)
             {
                 return;
             }
@@ -151,7 +154,7 @@ namespace CheeseUtilMod.Client
             {
                 BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
                     FirstComponentBeingEdited.Address,
-                    newBitwidth + 3 + 2 * addressPegSlider.ValueAsInt,
+                    2 * newBitwidth + Pegs.DualPort.ControlPegs + 2 * addressPegSlider.ValueAsInt,
                     2 * newBitwidth
                 ));
             }
@@ -167,15 +170,16 @@ namespace CheeseUtilMod.Client
 
         private void addressCountChanged(int newAddressBitWidth)
         {
-            if(!isComponentResizable)
+            if (!isComponentResizable)
             {
                 return;
             }
+
             if (FirstComponentBeingEdited.ClientCode is DualPortRamResizableClient)
             {
                 BuildRequestManager.SendBuildRequest(new BuildRequest_ChangeDynamicComponentPegCounts(
                     FirstComponentBeingEdited.Address,
-                    2 * newAddressBitWidth + 3 + widthPegSlider.ValueAsInt,
+                    2 * newAddressBitWidth + Pegs.DualPort.ControlPegs + 2 * widthPegSlider.ValueAsInt,
                     2 * widthPegSlider.ValueAsInt
                 ));
             }
@@ -209,7 +213,8 @@ namespace CheeseUtilMod.Client
 
         protected override IEnumerable<string> GetTextIDsOfComponentTypesThatCanBeEdited()
         {
-            return new string[] {
+            return new string[]
+            {
                 "CheeseUtilMod.Ram4aX1b",
                 "CheeseUtilMod.Ram8aX1b",
                 "CheeseUtilMod.Ram16aX1b",

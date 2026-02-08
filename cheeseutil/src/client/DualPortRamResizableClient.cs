@@ -9,8 +9,6 @@ namespace CheeseUtilMod.Client
 {
     public class DualPortRamResizableClient : ComponentClientCode<IRamResizableData>, FileLoadable
     {
-        private static int PEG_L = 2;
-
         protected override void Initialize()
         {
             CheeseUtilClient.fileLoadables.Add(this);
@@ -23,7 +21,7 @@ namespace CheeseUtilMod.Client
 
         public void Load(byte[] filedata, LineWriter writer, bool force)
         {
-            if (force || GetInputState(PEG_L))
+            if (force || GetInputState(Pegs.DualPort.LOAD))
             {
                 Data.ClientIncomingData = Compress(filedata);
                 Data.State = 1;

@@ -1,4 +1,5 @@
-﻿using LogicWorld.Rendering.Dynamics;
+﻿using CheeseUtilMod.Shared.CustomData;
+using LogicWorld.Rendering.Dynamics;
 using LogicWorld.SharedCode.Components;
 using UnityEngine;
 using LogicAPI.Data;
@@ -13,7 +14,7 @@ namespace CheeseUtilMod.Client
         protected override PlacingRules GeneratePlacingRulesFor((int InputCount, int OutputCount) identifier)
         {
             var dataSize = identifier.OutputCount / 2;
-            var addressSize = (identifier.InputCount - 3 - dataSize) / 2;
+            var addressSize = (identifier.InputCount - Pegs.DualPort.ControlPegs - identifier.OutputCount) / 2;
             float current_width = dataSize;
             if (addressSize > dataSize)
             {

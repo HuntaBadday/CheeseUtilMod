@@ -9,10 +9,7 @@ namespace CheeseUtilMod.Components
     public class DualPortRamResizable : LogicComponent<IRamResizableData>
     {
         public override bool HasPersistentValues => true;
-
-        private static int PEG_CS = 0;
-        private static int PEG_W = 1;
-        private static int PEG_L = 2;
+        
         private int bitWidth;
         private int addressWidth;
         private bool loadfromsave;
@@ -29,9 +26,9 @@ namespace CheeseUtilMod.Components
         protected override void Initialize()
         {
             bitWidth = Outputs.Count / 2;
-            addressWidth = (Inputs.Count - 3 - bitWidth) / 2;
-            Data.BitWidth = 2;
-            Data.AddressWidth = 1;
+            addressWidth = (Inputs.Count - Pegs.DualPort.ControlPegs - Outputs.Count) / 2;
+            Data.BitWidth = Pegs.DualPort.DefaultBitWidth;
+            Data.AddressWidth = Pegs.DualPort.DefaultAddressWidth;
             loadfromsave = true;
             memory = new byte[(1 << addressWidth) * widthToBytes(bitWidth)];
             isdatadirty = false;
@@ -48,7 +45,7 @@ namespace CheeseUtilMod.Components
         protected override void DoLogicUpdate()
         {
             var newBitWidth = Outputs.Count / 2;
-            var newAddressWidth = (Inputs.Count - 3 - newBitWidth) / 2;
+            var newAddressWidth = (Inputs.Count - Pegs.DualPort.ControlPegs - Outputs.Count) / 2;
             if (newBitWidth != bitWidth || newAddressWidth != addressWidth)
             {
                 bitWidth = newBitWidth;
@@ -57,68 +54,90 @@ namespace CheeseUtilMod.Components
             }
 
             ulong bytes = (ulong) widthToBytes(bitWidth);
-            ulong address = 0;
+            ulong addressPortA = 0;
             for (int i = 0; i < addressWidth; i++)
             {
-                address |= getPegShifted(i + 3 + bitWidth, i);
+                addressPortA |= getPegShifted(Pegs.DualPort.ControlPegs + i, i);
             }
 
-            ulong secondPortAddress = 0;
+            ulong addressPortB = 0;
             for (int i = 0; i < addressWidth; i++)
             {
-                secondPortAddress |= getPegShifted(i + 3 + addressWidth + bitWidth, i);
+                addressPortB |= getPegShifted(Pegs.DualPort.ControlPegs + addressWidth + i, i);
             }
 
-            address *= bytes;
-            secondPortAddress *= bytes;
-            if (Inputs[PEG_W].On)
+            addressPortA *= bytes;
+            addressPortB *= bytes;
+            //Write port A
+            if (Inputs[Pegs.DualPort.A_W].On)
             {
                 ulong data = 0;
                 for (int i = 0; i < bitWidth; i++)
                 {
-                    data |= getPegShifted(i + 3, i);
+                    data |= getPegShifted(Pegs.DualPort.ControlPegs + 2 * addressWidth + i, i);
                 }
 
                 for (ulong i = 0; i < bytes; i++)
                 {
-                    memory[address + i] = (byte) (data & 0xff);
+                    memory[addressPortA + i] = (byte) (data & 0xff);
+                    data >>= 8;
+                }
+
+                isdatadirty = true;
+            }
+            
+            //Write port B
+            if (Inputs[Pegs.DualPort.B_W].On)
+            {
+                ulong data = 0;
+                for (int i = 0; i < bitWidth; i++)
+                {
+                    data |= getPegShifted(Pegs.DualPort.ControlPegs + 2 * addressWidth + bitWidth + i, i);
+                }
+
+                for (ulong i = 0; i < bytes; i++)
+                {
+                    memory[addressPortB + i] = (byte) (data & 0xff);
                     data >>= 8;
                 }
 
                 isdatadirty = true;
             }
 
-            if (Inputs[PEG_CS].On)
+            // Port A
+            if (Inputs[Pegs.DualPort.A_OE].On)
             {
                 //int data = memory[address];
+                ulong data = 0;
+                for (ulong i = 0; i < bytes; i++)
                 {
-                    ulong data = 0;
-                    for (ulong i = 0; i < bytes; i++)
-                    {
-                        var i2 = bytes - 1 - i;
-                        data <<= 8;
-                        data |= memory[address + i2];
-                    }
+                    var i2 = bytes - 1 - i;
+                    data <<= 8;
+                    data |= memory[addressPortA + i2];
+                }
 
-                for (int i = 0; i < bitWidth; i++) {
+                for (int i = 0; i < bitWidth; i++)
+                {
                     Outputs[i].On = (data & 1) == 1;
                     data >>= 1;
                 }
             }
             else
             {
-                for (int i = 0; i < bitWidth; i++) {
+                for (int i = 0; i < bitWidth; i++)
+                {
                     Outputs[i].On = false;
                 }
             }
-            // Second port output, always active
+            // Port B
+            if (Inputs[Pegs.DualPort.B_OE].On)
             {
                 ulong data = 0;
                 for (ulong i = 0; i < bytes; i++)
                 {
                     var i2 = bytes - 1 - i;
                     data <<= 8;
-                    data |= memory[secondPortAddress + i2];
+                    data |= memory[addressPortB + i2];
                 }
 
                 for (int i = bitWidth; i < 2 * bitWidth; i++)
@@ -129,7 +148,7 @@ namespace CheeseUtilMod.Components
             }
             else
             {
-                for (int i = 0; i < 2 * bitWidth; i++)
+                for (int i = bitWidth; i < 2 * bitWidth; i++)
                 {
                     Outputs[i].On = false;
                 }

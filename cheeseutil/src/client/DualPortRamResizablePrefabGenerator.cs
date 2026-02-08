@@ -1,6 +1,7 @@
 ﻿using LogicWorld.Rendering.Dynamics;
 using LogicWorld.SharedCode.Components;
 using System.Collections.Generic;
+using CheeseUtilMod.Shared.CustomData;
 using UnityEngine;
 using JimmysUnityUtilities;
 using LogicAPI.Data;
@@ -15,25 +16,155 @@ namespace CheeseUtilMod.Client
             => (componentData.InputCount, componentData.OutputCount);
 
         public override (int inputCount, int outputCount) GetDefaultPegCounts()
-            => (3 + 1 * 2 + 2, 2 * 2);
+            => (Pegs.DualPort.ControlPegs + 2 * Pegs.DualPort.DefaultBitWidth + 2 * Pegs.DualPort.DefaultAddressWidth,
+                2 * Pegs.DualPort.DefaultBitWidth);
+        
+        // Input pegs in order:
+        // Control pegs (5)
+        // Port A address (addressWidth)
+        // Port B address (addressWidth)
+        // Port A input (bitWidth)
+        // Port B input (bitWidth)
+        
+        // Output pegs in order:
+        // Port A output (bitWidth)
+        // Port B output (bitWidth)
 
         protected override Prefab GeneratePrefabFor((int InputCount, int OutputCount) identifier)
         {
             var dataSize = identifier.OutputCount / 2;
-            var addressSize = (identifier.InputCount - 3 - dataSize) / 2;
+            var addressSize = (identifier.InputCount - Pegs.DualPort.ControlPegs - identifier.OutputCount) / 2;
             var prefabBlock = new Block
             {
                 RawColor = blockColor
             };
-            List<ComponentOutput> outputs = new List<ComponentOutput>();
             float current_width = dataSize;
             if (addressSize > dataSize)
             {
                 current_width = addressSize;
             }
 
+            //Generate the chip select and write lines
+            List<ComponentInput> inputs = new List<ComponentInput>();
+            //Load
+            inputs.Add(new ComponentInput
+            {
+                Position = new Vector3(-0.5f, 5f, 0.5f),
+                Rotation = new Vector3(0f, 0f, 0f),
+                Length = 0.6f
+            });
+            //Output enable A
+            inputs.Add(new ComponentInput
+            {
+                Position = new Vector3(0f, 5f, 0f),
+                Rotation = new Vector3(0f, 0f, 0f),
+                Length = 1f,
+            });
+            //Write A
+            inputs.Add(new ComponentInput
+            {
+                Position = new Vector3(1f, 5f, 0f),
+                Rotation = new Vector3(0f, 0f, 0f),
+                Length = 0.8f
+            });
+            //Output enable B
+            inputs.Add(new ComponentInput
+            {
+                Position = new Vector3(0f, 5f, 1f),
+                Rotation = new Vector3(0f, 0f, 0f),
+                Length = 1f,
+            });
+            //Write B
+            inputs.Add(new ComponentInput
+            {
+                Position = new Vector3(1f, 5f, 1f),
+                Rotation = new Vector3(0f, 0f, 0f),
+                Length = 0.8f
+            });
+
+            //Port A address pins
+            float baseInputX = -current_width / 2f + 1f;
+            //Make the inputs different lengths to signal endianness
+            //Start with the smallest length one being little endian
+            float start_length = 0.2f;
+            float end_length = 0.6f;
+            float step_length = (end_length - start_length) / addressSize;
+            float length = start_length;
+            for (int i = 0; i < addressSize; i++)
+            {
+                inputs.Add(new ComponentInput
+                {
+                    Position = new Vector3(baseInputX, 4f, -0.5f),
+                    Rotation = new Vector3(-90f, 0f, 0f),
+                    Length = length
+                });
+                baseInputX += 1;
+                length += step_length;
+            }
+
+            //Port B address pins
+            baseInputX = -current_width / 2f + 1f;
+            step_length = (end_length - start_length) / addressSize;
+            length = start_length;
+            for (int i = 0; i < addressSize; i++)
+            {
+                inputs.Add(new ComponentInput
+                {
+                    Position = new Vector3(baseInputX, 4f, 1.5f),
+                    Rotation = new Vector3(90f, 0f, 0f),
+                    Length = length
+                });
+                baseInputX += 1;
+                length += step_length;
+            }
+
+            //Port A data input pins
+            baseInputX = (-current_width / 2f) + 1f;
+            step_length = (end_length - start_length) / dataSize;
+            length = start_length;
+            for (int i = 0; i < dataSize; i++)
+            {
+                inputs.Add(new ComponentInput
+                {
+                    Position = new Vector3(baseInputX, 2.5f, -0.5f),
+                    Rotation = new Vector3(-90f, 0f, 0f),
+                    Length = length
+                });
+                baseInputX += 1;
+                length += step_length;
+            }
+
+            //Port B data input pins
+            baseInputX = (-current_width / 2f) + 1f;
+            step_length = (end_length - start_length) / dataSize;
+            length = start_length;
+            for (int i = 0; i < dataSize; i++)
+            {
+                inputs.Add(new ComponentInput
+                {
+                    Position = new Vector3(baseInputX, 2.5f, 1.5f),
+                    Rotation = new Vector3(90f, 0f, 0f),
+                    Length = length
+                });
+                baseInputX += 1;
+                length += step_length;
+            }
+
+            List<ComponentOutput> outputs = new List<ComponentOutput>();
             float baseOutputX = -current_width / 2f + 1f;
-            //Generate all the outputs
+            //Port A outputs
+            for (int i = 0; i < dataSize; i++)
+            {
+                outputs.Add(new ComponentOutput
+                {
+                    Position = new Vector3(baseOutputX, 1f, -0.5f),
+                    Rotation = new Vector3(-90f, 0f, 0f),
+                });
+                baseOutputX += 1;
+            }
+
+            baseOutputX = -current_width / 2f + 1f;
+            //Port B outputs
             for (int i = 0; i < dataSize; i++)
             {
                 outputs.Add(new ComponentOutput
@@ -44,94 +175,7 @@ namespace CheeseUtilMod.Client
                 baseOutputX += 1;
             }
 
-            baseOutputX = -current_width / 2f + 1f;
-            //Generate all outputs for the second port
-            for (int i = 0; i < dataSize; i++)
-            {
-                outputs.Add(new ComponentOutput
-                {
-                    Position = new Vector3(baseOutputX, 2.5f, 1.5f),
-                    Rotation = new Vector3(90f, 0f, 0f),
-                });
-                baseOutputX += 1;
-            }
-
-            //Generate the chip select and write lines
-            List<ComponentInput> inputs = new List<ComponentInput>();
-            //Chip select
-            inputs.Add(new ComponentInput
-            {
-                Position = new Vector3(-1f, 4f, 0f),
-                Rotation = new Vector3(0f, 0f, 0f),
-                Length = 0.6f,
-            });
-            //Write
-            inputs.Add(new ComponentInput
-            {
-                Position = new Vector3(0f, 4f, 0f),
-                Rotation = new Vector3(0f, 0f, 0f),
-                Length = 0.5f
-            });
-            //Load
-            inputs.Add(new ComponentInput
-            {
-                Position = new Vector3(1f, 4f, 0f),
-                Rotation = new Vector3(0f, 0f, 0f),
-                Length = 0.4f
-            });
-            //Data input pins
-            float baseInputX = (-current_width / 2f) + 1f;
-            //Make the inputs different lengths to signal endianness
-            //Start with the smallest length one being little endian
-            float start_length = 0.2f;
-            float end_length = 0.6f;
-            float step_length = (end_length - start_length) / dataSize;
-            float length = start_length;
-            for (int i = 0; i < dataSize; i++)
-            {
-                inputs.Add(new ComponentInput
-                {
-                    Position = new Vector3(baseInputX, 0.5f, -0.5f),
-                    Rotation = new Vector3(-90f, 0f, 0f),
-                    Length = length
-                });
-                baseInputX += 1;
-                length += step_length;
-            }
-
-            //Address pins
-            baseInputX = -current_width / 2f + 1f;
-            step_length = (end_length - start_length) / addressSize;
-            length = start_length;
-            for (int i = 0; i < addressSize; i++)
-            {
-                inputs.Add(new ComponentInput
-                {
-                    Position = new Vector3(baseInputX, 2f, -0.5f),
-                    Rotation = new Vector3(-90f, 0f, 0f),
-                    Length = length
-                });
-                baseInputX += 1;
-                length += step_length;
-            }
-
-            // Second port address pins
-            baseInputX = -current_width / 2f + 1f;
-            step_length = (end_length - start_length) / addressSize;
-            length = start_length;
-            for (int i = 0; i < addressSize; i++)
-            {
-                inputs.Add(new ComponentInput
-                {
-                    Position = new Vector3(baseInputX, 3.5f, -0.5f),
-                    Rotation = new Vector3(-90f, 0f, 0f),
-                    Length = length
-                });
-                baseInputX += 1;
-                length += step_length;
-            }
-
-            prefabBlock.Scale = new Vector3(current_width, 4f, 2f);
+            prefabBlock.Scale = new Vector3(current_width, 5f, 2f);
             prefabBlock.Position = new Vector3(0.5f, 0f, 0.5f);
             return new Prefab
             {
